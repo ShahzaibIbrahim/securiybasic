@@ -13,6 +13,7 @@ CREATE TABLE authorities (
   PRIMARY KEY (id)
 );
 
+
 INSERT INTO users VALUES (NULL, 'happy', '12345', '1');
 INSERT INTO authorities VALUES (NULL, 'happy', 'write');
 
