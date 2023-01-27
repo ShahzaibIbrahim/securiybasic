@@ -12,35 +12,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Date;
 import java.util.List;
 
 @RestController
-public class UserController {
-/*
+public class LoginController {
+
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody Customer customer) {
-        Customer newCustomer = null;
+        Customer savedCustomer = null;
         ResponseEntity response = null;
-
         try {
-            String hashPassword = passwordEncoder.encode(customer.getPwd());
-            customer.setPwd(hashPassword);
-            newCustomer = customerRepository.save(customer);
-            if(newCustomer.getId() > 0) {
-                response = ResponseEntity.status(HttpStatus.CREATED)
-                        .body("User Registered Successfully");
+            String hashPwd = passwordEncoder.encode(customer.getPwd());
+            customer.setPwd(hashPwd);
+            customer.setCreateDt(String.valueOf(new Date(System.currentTimeMillis())));
+            savedCustomer = customerRepository.save(customer);
+            if (savedCustomer.getId() > 0) {
+                response = ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .body("Given user details are successfully registered");
             }
-        } catch (Exception e) {
-            response = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An exception occured due to " + e.getMessage());
+        } catch (Exception ex) {
+            response = ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An exception occured due to " + ex.getMessage());
         }
-
         return response;
     }
 
@@ -53,5 +55,6 @@ public class UserController {
             return null;
         }
 
-    }*/
+    }
+    
 }
