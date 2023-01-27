@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * I only need this if I am using Spring DAOAuthentication provider
+ * But we all know I am hushyar so I will write my own authentication provider
+ */
 @Service
 public class SecurityBasicUserDetails implements UserDetailsService {
 
