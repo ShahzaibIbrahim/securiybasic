@@ -36,24 +36,24 @@ public class ProjectSecurityConfig  {
      * @return SecurityFilterChain
      * @throws Exception
      */
-    @Bean
+   /* @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
 
         CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
         requestHandler.setCsrfRequestAttributeName("_csrf");
-        /**
+        *//**
          * Default configurations which will secure all the requests
-         */
-		/*((ExpressionUrlAuthorizationConfigurer.AuthorizedUrl)http.authorizeRequests().anyRequest()).
+         *//*
+		*//*((ExpressionUrlAuthorizationConfigurer.AuthorizedUrl)http.authorizeRequests().anyRequest()).
 				authenticated();
 		http.formLogin();
 		http.httpBasic();
-		return (SecurityFilterChain)http.build();*/
+		return (SecurityFilterChain)http.build();*//*
 
-        /**
+        *//**
          * Custom configurations as per our requirement
-         */
+         *//*
        http.securityContext().requireExplicitSave(false)
                 .and().sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)).cors().configurationSource(new CorsConfigurationSource() {
                      @Override
@@ -75,22 +75,22 @@ public class ProjectSecurityConfig  {
         ).httpBasic(Customizer.withDefaults());
         return http.build();
 
-        /**
+        *//**
          * Configuration to deny all the requests
-         */
-		/*http.authorizeHttpRequests( (auth)->auth
+         *//*
+		*//*http.authorizeHttpRequests( (auth)->auth
 				.anyRequest().denyAll())
 				.httpBasic(Customizer.withDefaults());
-		return http.build();*/
+		return http.build();*//*
 
-        /**
+        *//**
          * Configuration to permit all the requests
-         */
-		/*http.authorizeHttpRequests( (auth)->auth
+         *//*
+		*//*http.authorizeHttpRequests( (auth)->auth
 						.anyRequest().permitAll())
 				.httpBasic(Customizer.withDefaults());
-		return http.build();*/
-    }
+		return http.build();*//*
+    }*/
 
 /*
      @Bean
@@ -129,6 +129,42 @@ public class ProjectSecurityConfig  {
      *
      * @return
      */
+
+    @Bean
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+        requestHandler.setCsrfRequestAttributeName("_csrf");
+        http.securityContext().requireExplicitSave(false)
+                .and().sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .cors().configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowCredentials(true);
+                        config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.setMaxAge(3600L);
+                        return config;
+                    }
+                }).and().csrf((csrf) -> csrf.csrfTokenRequestHandler(requestHandler).ignoringRequestMatchers("/contact","/register")
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .authorizeHttpRequests()
+                /*.requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
+                .requestMatchers("/myBalance").hasAnyAuthority("VIEWACCOUNT","VIEWBALANCE")
+                .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
+                .requestMatchers("/myCards").hasAuthority("VIEWCARDS")*/
+                .requestMatchers("/myAccount").hasRole("USER")
+                .requestMatchers("/myBalance").hasAnyRole("USER","ADMIN")
+                .requestMatchers("/myLoans").hasRole("USER")
+                .requestMatchers("/myCards").hasRole("USER")
+                .requestMatchers("/user").authenticated()
+                .requestMatchers("/notices","/contact","/register").permitAll()
+                .and().formLogin()
+                .and().httpBasic();
+        return http.build();
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

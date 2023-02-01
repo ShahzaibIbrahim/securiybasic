@@ -1,5 +1,6 @@
 package com.ss.securiybasic.config;
 
+import com.ss.securiybasic.model.Authority;
 import com.ss.securiybasic.model.Customer;
 import com.ss.securiybasic.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class SecurityBasicAuthenticationProvider implements AuthenticationProvider {
@@ -31,15 +33,22 @@ public class SecurityBasicAuthenticationProvider implements AuthenticationProvid
         List<Customer> customers = customerRepository.findByEmail(username);
         if(customers.size() > 0) {
             if(passwordEncoder.matches(pwd, customers.get(0).getPwd())) {
-                List<GrantedAuthority> authorities = new ArrayList<>();
-                authorities.add(new SimpleGrantedAuthority(customers.get(0).getRole()));
-                return new UsernamePasswordAuthenticationToken(username, pwd, authorities);
+                return new UsernamePasswordAuthenticationToken(username, pwd, getGrantedAuthorties(customers.get(0).getAuthorities()));
             } else {
                 throw new BadCredentialsException("Invalid Credentials");
             }
         } else {
             throw new BadCredentialsException("Invalid Credentials");
         }
+    }
+
+    private List<GrantedAuthority> getGrantedAuthorties(Set<Authority> authoritySet) {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for(Authority authority : authoritySet) {
+            authorities.add(new SimpleGrantedAuthority(authority.getName()));
+        }
+
+        return authorities;
     }
 
     @Override
